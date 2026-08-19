@@ -55,7 +55,7 @@ public sealed class PathPlatformSemantics {
 	/// <summary>Gets the pathname grammar.</summary>
 	public PathPlatformKind Kind { get; }
 
-	/// <summary>Gets the canonical directory separator emitted by shared pathname operations.</summary>
+	/// <summary>Gets the canonical directory separator emitted by library pathname operations.</summary>
 	public char DirectorySeparator { get; }
 
 	/// <summary>Gets the accepted alternate separator, or <see langword="null"/> when none exists.</summary>

@@ -22,10 +22,13 @@ public sealed class SystemPathIndirectionInspector : IPathIndirectionInspector {
 	private SystemPathIndirectionInspector() {
 	}
 
-	/// <summary>Gets the shared host inspector.</summary>
+	/// <summary>Gets the reusable host inspector.</summary>
 	public static SystemPathIndirectionInspector Instance { get; } = new();
 
-	/// <inheritdoc/>
+	/// <summary>Characterizes one pathname object without dereferencing a terminal indirection.</summary>
+	/// <param name="path">The pathname to inspect.</param>
+	/// <param name="cancellationToken">The cancellation token.</param>
+	/// <returns>The physical pathname-indirection characterization.</returns>
 	public ValueTask<PathIndirectionInfo> InspectAsync(
 		string path,
 		CancellationToken cancellationToken = default

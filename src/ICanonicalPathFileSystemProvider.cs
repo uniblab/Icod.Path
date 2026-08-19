@@ -1,7 +1,7 @@
 namespace Icod.Path;
 
 /// <summary>
-/// Supplies one-component, no-follow filesystem observations to the shared canonical-path resolver.
+/// Supplies one-component, no-follow filesystem observations to the canonical-path resolver.
 /// Implementations do not recurse, resolve complete link chains, write diagnostics, or choose command status.
 /// </summary>
 public interface ICanonicalPathFileSystemProvider {

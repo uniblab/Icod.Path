@@ -14,7 +14,7 @@ public sealed class SystemCanonicalPathFileSystemProvider : ICanonicalPathFileSy
 			?? throw new ArgumentNullException( nameof( indirectionInspector ) );
 	}
 
-	/// <summary>Gets the shared system-provider instance.</summary>
+	/// <summary>Gets the reusable system-provider instance.</summary>
 	public static SystemCanonicalPathFileSystemProvider Instance { get; } = new();
 
 	/// <inheritdoc/>
@@ -23,7 +23,10 @@ public sealed class SystemCanonicalPathFileSystemProvider : ICanonicalPathFileSy
 	/// <inheritdoc/>
 	public string CurrentDirectory => Directory.GetCurrentDirectory();
 
-	/// <inheritdoc/>
+	/// <summary>Observes one absolute lexical pathname without dereferencing a terminal indirection.</summary>
+	/// <param name="path">The absolute lexical pathname to observe.</param>
+	/// <param name="cancellationToken">The cancellation token.</param>
+	/// <returns>The no-follow filesystem observation.</returns>
 	public async ValueTask<PathComponentObservation> ObserveAsync(
 		string path,
 		CancellationToken cancellationToken = default

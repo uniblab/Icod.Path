@@ -154,7 +154,7 @@ public sealed class PathIndirectionInfo {
 	/// <summary>Gets whether the object participates in pathname indirection.</summary>
 	public bool IsPathIndirection => IsSymbolicLink || IsNameSurrogate;
 
-	/// <summary>Gets whether the shared resolver can safely expand the stored target.</summary>
+	/// <summary>Gets whether the canonical resolver can safely expand the stored target.</summary>
 	public bool CanResolveAsPath => (Kind is PathIndirectionKind.PosixSymbolicLink
 		or PathIndirectionKind.WindowsSymbolicLink
 		or PathIndirectionKind.WindowsJunction

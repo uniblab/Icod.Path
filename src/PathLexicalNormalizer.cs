@@ -26,7 +26,7 @@ public static class PathLexicalNormalizer {
 		);
 	}
 
-	/// <summary>Normalizes a pathname and returns the parsed absolute root and components for shared consumers.</summary>
+	/// <summary>Normalizes a pathname and returns the parsed absolute root and components for library consumers.</summary>
 	/// <param name="path">The input pathname.</param>
 	/// <param name="basePath">The absolute base directory used for relative input.</param>
 	/// <param name="semantics">The pathname grammar.</param>

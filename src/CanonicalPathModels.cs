@@ -315,7 +315,7 @@ public sealed class PathComponentObservation {
 		return new PathComponentObservation( path, true, true, kind, indirection, null );
 	}
 
-	/// <summary>Creates a source-compatible existing-object observation.</summary>
+	/// <summary>Creates an existing-object observation using the compatibility parameter set.</summary>
 	/// <param name="path">The observed pathname.</param>
 	/// <param name="kind">The physical non-link object kind.</param>
 	/// <param name="isSymbolicLink">Whether the object is a supported symbolic link.</param>
@@ -436,7 +436,7 @@ public sealed class PathLinkInspectionResult {
 		return new PathLinkInspectionResult( path, kind, indirection, null );
 	}
 
-	/// <summary>Creates a source-compatible successful link inspection.</summary>
+	/// <summary>Creates a successful link inspection using the compatibility parameter set.</summary>
 	/// <param name="path">The inspected absolute lexical pathname.</param>
 	/// <param name="kind">The observed physical object kind.</param>
 	/// <param name="isSymbolicLink">Whether the object is a supported symbolic link.</param>

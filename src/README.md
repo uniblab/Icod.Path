@@ -1,6 +1,6 @@
 # Canonical-path and pathname-indirection model
 
-The `Icod.Path` namespace separates pathname grammar from physical filesystem observation.
+The standalone `Icod.Path` library separates pathname grammar from physical filesystem observation. This document describes the source-level contract behind its public canonicalization and pathname-indirection APIs.
 
 - `PathPlatformSemantics` describes POSIX and Windows separators, root syntax, volume identity, and comparison rules independently of the host operating system.
 - `PathLexicalNormalizer` creates absolute lexical paths without observing the filesystem and rejects invalid or unresolved drive-relative forms.
@@ -29,7 +29,7 @@ A reparse point is a tagged Windows extension mechanism, not necessarily a link.
 
 The resolver follows only characterized mechanisms whose targets can safely be expanded as pathnames: POSIX links, Windows symbolic links, junctions, and mounted volumes. Unknown name surrogates remain observable physical objects and produce a controlled unsupported result when pathname resolution would require following them. Recognized non-name-surrogate points, including Cloud Files placeholders and opaque filter-managed objects, remain the same physical file or directory and are never relabeled as links. Reparse points whose tag cannot be characterized are quarantined rather than silently traversed merely because `Directory.Exists` succeeds.
 
-The source-compatible `FollowSymbolicLinks` option retains its historical name, but its enabled behavior applies to all eligible pathname indirection. The final object may be retained for no-follow inspection. Unsupported terminal reparse points can be retained only when the caller explicitly permits that physical-object result.
+The `FollowSymbolicLinks` option is retained for API compatibility, but its enabled behavior applies to all eligible pathname indirection. The final object may be retained for no-follow inspection. Unsupported terminal reparse points can be retained only when the caller explicitly permits that physical-object result.
 
 ## Windows observation safety
 
