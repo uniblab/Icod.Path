@@ -7,7 +7,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<OutputPath>..\bin\$(Configuration)\</OutputPath>
+		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 		<AssemblyName>Icod.Path</AssemblyName>
 		<RootNamespace>Icod.Path</RootNamespace>
 		<Configurations>Debug;Release;Staging</Configurations>
@@ -45,6 +45,11 @@
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="src\**\*.cs" />
+		<EmbeddedResource Remove="tests\**" />
+		<None Remove="tests\**" />
+	</ItemGroup>
 	<ItemGroup>
 		<Content Include="README.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
