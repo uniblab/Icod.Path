@@ -49,6 +49,7 @@ jobs:
   deploy:
     needs: build-and-test
     runs-on: windows-latest
+    environment: Release
     steps:
       - uses: actions/checkout@v4
 
