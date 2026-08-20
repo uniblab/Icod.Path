@@ -4,7 +4,7 @@
 		<Copyright>2026</Copyright>
 		<LangVersion>13.0</LangVersion>
 		<OutputType>Library</OutputType>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -36,7 +36,7 @@
 		<WarningsNotAsErrors>CS1591</WarningsNotAsErrors>
 	</PropertyGroup>
 	<PropertyGroup>
-		<PackageVersion>1.0.0-RC1</PackageVersion>
+		<PackageVersion>1.0.0-RC2</PackageVersion>
 		<PackageReleaseNotes>Initial canonical-path foundation release</PackageReleaseNotes>
 		<Authors>Timothy J. Bruce</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -48,11 +48,13 @@
 		<PackageTags>path;filesystem;canonicalization;path-resolution;realpath;normalization;symlink;symbolic-link;reparse-point;cross-platform</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/uniblab/Icod.Path</RepositoryUrl>
+		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="src\**\*.cs" />
 		<EmbeddedResource Remove="tests\**" />
 		<None Remove="tests\**" />
+		<None Include="icon.png" Pack="true" PackagePath="" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="README.md">
