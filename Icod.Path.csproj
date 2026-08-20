@@ -46,8 +46,8 @@
 		<WarningsNotAsErrors>CS1591</WarningsNotAsErrors>
 	</PropertyGroup>
 	<PropertyGroup>
-		<PackageVersion>1.0.0-RC9</PackageVersion>
-		<PackageReleaseNotes>Initial canonical-path foundation release</PackageReleaseNotes>
+		<PackageVersion>1.0.0</PackageVersion>
+		<PackageReleaseNotes>Canonical-path foundation release</PackageReleaseNotes>
 		<Authors>Timothy J. Bruce</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
