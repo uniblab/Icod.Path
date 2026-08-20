@@ -36,7 +36,7 @@
 		<WarningsNotAsErrors>CS1591</WarningsNotAsErrors>
 	</PropertyGroup>
 	<PropertyGroup>
-		<PackageVersion>1.0.0-RC7</PackageVersion>
+		<PackageVersion>1.0.0-RC8</PackageVersion>
 		<PackageReleaseNotes>Initial canonical-path foundation release</PackageReleaseNotes>
 		<Authors>Timothy J. Bruce</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -45,10 +45,13 @@
 		<IncludeContentInPack>true</IncludeContentInPack>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<Deterministic>true</Deterministic>
 		<PackageTags>path;filesystem;canonicalization;path-resolution;realpath;normalization;symlink;symbolic-link;reparse-point;cross-platform;posix;hard-link;junction-point;canonical-path</PackageTags>
 		<RepositoryUrl>https://github.com/uniblab/Icod.Path</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageIcon>icon.png</PackageIcon>
+		<GenerateAppxPackageOnBuild>False</GenerateAppxPackageOnBuild>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="src\**\*.cs" />

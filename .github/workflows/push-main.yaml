@@ -34,7 +34,7 @@ jobs:
       # Pack the specific project only on one OS to create the artifact
       - name: Pack NuGet Package
         if: matrix.os == 'windows-latest'
-        run: dotnet pack Icod.Path.csproj -c Release --no-build -o ./artifacts --include-source --include-symbols
+        run: dotnet pack Icod.Path.csproj -c Release --no-build -o ./artifacts --include-source --include-symbols -p:ContinuousIntegrationBuild=true
 
       # Save the package so the deploy job can access it
       - name: Upload Artifact
