@@ -28,13 +28,13 @@ jobs:
 
       - run: dotnet clean Icod.Path.sln -c Release
       - run: dotnet restore Icod.Path.sln
-      - run: dotnet build Icod.Path.sln -c Release --no-restore
+      - run: dotnet build Icod.Path.sln -c Release --no-restore -p:ContinuousIntegrationBuild=true
       - run: dotnet test Icod.Path.sln -c Release --no-build --logger trx
 
       # Pack the specific project only on one OS to create the artifact
       - name: Pack NuGet Package
         if: matrix.os == 'windows-latest'
-        run: dotnet pack Icod.Path.csproj -c Release --no-build -o ./artifacts --include-source --include-symbols -p:ContinuousIntegrationBuild=true
+        run: dotnet pack Icod.Path.csproj -c Release --no-build -o ./artifacts
 
       # Save the package so the deploy job can access it
       - name: Upload Artifact
