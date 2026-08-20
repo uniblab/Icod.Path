@@ -76,3 +76,11 @@ jobs:
           Get-ChildItem "./artifacts/Icod.Path.*.nupkg" | ForEach-Object {
             dotnet nuget push $_.FullName --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
+
+      # PowerShell friendly execution to push all target packages sequentially
+      - name: Push to GitHub Packages
+        shell: pwsh
+        run: |
+          Get-ChildItem "./artifacts/Icod.Path.*.nupkg" | ForEach-Object {
+            dotnet nuget push $_.FullName --api-key ${{ secrets.GITHUB_TOKEN }} $--source "https://github.com{{ github.repository_owner }}/index.json" --skip-duplicate
+          }
