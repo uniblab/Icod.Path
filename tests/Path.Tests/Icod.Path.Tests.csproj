@@ -45,7 +45,7 @@
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
-		<DebugType>pdbonly</DebugType>
+		<DebugType>portable</DebugType>
 		<Optimize>true</Optimize>
 		<SignAssembly>false</SignAssembly>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
