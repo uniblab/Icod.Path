@@ -8,6 +8,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  packages: write
 
 jobs:
   # ----------------------------------------------------
@@ -82,5 +83,5 @@ jobs:
         shell: pwsh
         run: |
           Get-ChildItem "./artifacts/Icod.Path.*.nupkg" | ForEach-Object {
-            dotnet nuget push $_.FullName --api-key ${{ secrets.GITHUB_TOKEN }} $--source "https://github.com{{ github.repository_owner }}/index.json" --skip-duplicate
+            dotnet nuget push $_.FullName --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://github.com{{ github.repository_owner }}/index.json" --skip-duplicate
           }
