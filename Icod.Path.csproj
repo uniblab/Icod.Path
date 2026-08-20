@@ -46,8 +46,8 @@
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageTags>path;filesystem;canonicalization;path-resolution;realpath;normalization;symlink;symbolic-link;reparse-point;cross-platform;posix;hard-link;junction-point;canonical-path</PackageTags>
-		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/uniblab/Icod.Path</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 		<PackageIcon>icon.png</PackageIcon>
 	</PropertyGroup>
 	<ItemGroup>
