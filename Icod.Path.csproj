@@ -12,6 +12,7 @@
 		<AssemblyName>Icod.Path</AssemblyName>
 		<RootNamespace>Icod.Path</RootNamespace>
 		<Configurations>Debug;Release;Staging</Configurations>
+		<Version>1.0.0</Version>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(PlatformTarget)' == '' ">
 		<PlatformTarget>AnyCPU</PlatformTarget>
