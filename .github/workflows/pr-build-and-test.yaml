@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-      - run: dotnet clean Icod.Path.sln -c Debug
+      - run: dotnet clean Icod.Path.sln -c Staging
       - run: dotnet restore Icod.Path.sln
-      - run: dotnet build Icod.Path.sln -c Debug --no-restore
-      - run: dotnet test Icod.Path.sln -c Debug --no-build --logger trx
+      - run: dotnet build Icod.Path.sln -c Staging --no-restore
+      - run: dotnet test Icod.Path.sln -c Staging --no-build --logger trx
