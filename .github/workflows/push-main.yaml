@@ -24,7 +24,11 @@ jobs:
 
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: |
+            7.0x
+            8.0.x
+            9.0x
+            10.0.x
 
       - run: dotnet clean Icod.Path.sln -c Release
       - run: dotnet restore Icod.Path.sln
