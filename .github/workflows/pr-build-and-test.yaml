@@ -14,9 +14,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            7.0x
+            7.0.x
             8.0.x
-            9.0x
+            9.0.x
             10.0.x
 
       - run: dotnet clean Icod.Path.sln -c Staging
