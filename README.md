@@ -1,17 +1,36 @@
 # Icod.Path
 
-`Icod.Path` is a standalone .NET library for deterministic pathname normalization, physical canonicalization, and no-follow pathname-indirection inspection across POSIX and Windows path models.
+`Icod.Path` is a standalone .NET library for deterministic pathname decomposition, normalization, physical canonicalization, and no-follow pathname-indirection inspection across POSIX and Windows path models.
 
 The library is command-neutral. It can be consumed by utility suites, applications, services, build tools, or other libraries that need canonical-path behavior without depending on a command-line implementation.
 
 ## What the library provides
 
 - `PathPlatformSemantics` models POSIX and Windows separators, roots, volume identity, and pathname comparison rules independently of the host operating system.
+- `PathSyntaxParser` decomposes pathname text into root and ordered components without normalizing components, interpreting wildcard characters, or observing the filesystem.
 - `PathLexicalNormalizer` converts input into absolute lexical form without observing the filesystem.
 - `CanonicalPathResolver` performs ordered physical resolution, missing-component handling, pathname-indirection traversal, relative-path calculation, and component-aware containment checks.
 - `ICanonicalPathFileSystemProvider` separates canonical-path policy from filesystem observation and permits deterministic or synthetic providers in tests and specialized hosts.
 - `IPathIndirectionInspector` and `SystemPathIndirectionInspector` characterize a terminal pathname object without silently dereferencing it.
 - `CanonicalPathResult`, `RelativePathResult`, `PathContainmentResult`, and related models return structured success or failure information instead of writing diagnostics or inventing a successful path after an error.
+
+## Lexical pathname decomposition
+
+`PathSyntaxParser.Parse` separates pathname structure from later interpretation. It identifies POSIX and Windows roots, volume identity, drive-relative and current-volume-rooted Windows forms, and the ordered nonempty component sequence.
+
+The parser does not collapse `.` or `..`, does not interpret `*` or `?`, and does not enumerate the filesystem. Component text is preserved for higher-level consumers such as command frameworks that may apply their own pathname-pattern semantics. Windows root syntax is validated, while component contents are intentionally left uninterpreted by this decomposition layer.
+
+```csharp
+var syntax = PathSyntaxParser.Parse(
+    @"C:\src\**\foo?.cs",
+    PathPlatformSemantics.Windows
+);
+
+Console.WriteLine( syntax.RootPath );
+foreach ( var component in syntax.Components ) {
+    Console.WriteLine( component );
+}
+```
 
 ## Canonicalization model
 
@@ -56,7 +75,7 @@ System-backed physical observation uses the current host filesystem. On Windows,
 
 ## Build and test
 
-`Icod.Path` targets .NET 10.0 and uses C# 13.
+`Icod.Path` targets .NET 7.0, 8.0, 9.0, and 10.0 and uses C# 13.
 
 ```text
 dotnet build Icod.Path.sln

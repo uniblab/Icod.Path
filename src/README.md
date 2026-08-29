@@ -1,8 +1,9 @@
 # Canonical-path and pathname-indirection model
 
-The standalone `Icod.Path` library separates pathname grammar from physical filesystem observation. This document describes the source-level contract behind its public canonicalization and pathname-indirection APIs.
+The standalone `Icod.Path` library separates pathname grammar from physical filesystem observation. This document describes the source-level contract behind its public pathname-syntax, canonicalization, and pathname-indirection APIs.
 
 - `PathPlatformSemantics` describes POSIX and Windows separators, root syntax, volume identity, and comparison rules independently of the host operating system.
+- `PathSyntaxParser` decomposes pathname text into root metadata and ordered components without normalization, wildcard interpretation, or filesystem observation.
 - `PathLexicalNormalizer` creates absolute lexical paths without observing the filesystem and rejects invalid or unresolved drive-relative forms.
 - `IPathIndirectionInspector` characterizes one terminal physical object without dereferencing it or opening file content.
 - `SystemPathIndirectionInspector` reads POSIX link targets and, on Windows, combines no-follow handle information, `FSCTL_GET_REPARSE_POINT`, and volume-mount APIs.
@@ -10,6 +11,14 @@ The standalone `Icod.Path` library separates pathname grammar from physical file
 - `ICanonicalPathFileSystemProvider` supplies one no-follow observation per pathname component.
 - `CanonicalPathResolver` performs ordered physical resolution, loop and expansion-limit checks, missing-component policy, terminal-object inspection, relative-path computation, and containment evaluation.
 - `CanonicalPathResult`, `RelativePathResult`, and `PathContainmentResult` carry structured failures; no failure path is returned as a successful canonical result.
+
+## Pathname syntax decomposition
+
+`PathSyntaxParser` is the command-neutral structural layer. It validates only pathname-level invariants needed to identify the root and component boundaries: nonempty input, no NUL character, and well-formed Windows root syntax. It returns `PathSyntaxParts` containing the original input, canonical root spelling, volume identity, ordered nonempty components, and flags for absolute, drive-relative, and current-volume-rooted forms.
+
+Component text is not normalized or interpreted. In particular, `.` and `..` remain components, and characters such as `*` and `?` remain ordinary component text at this layer. The parser does not decide whether those characters are valid filesystem names or wildcard operators. Higher-level consumers may impose those policies after decomposition.
+
+This distinction keeps pathname grammar in `Icod.Path` while leaving pathname-pattern matching, directory enumeration, recursive `**` semantics, unmatched-pattern handling, and traversal policy to higher-level libraries.
 
 ## Missing components
 
