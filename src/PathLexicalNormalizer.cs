@@ -479,7 +479,7 @@ public static class PathLexicalNormalizer {
 		return true;
 	}
 
-	private static WindowsRoot ParseWindowsRoot( string path ) {
+	internal static WindowsRoot ParseWindowsRoot( string path ) {
 		if (
 			4 <= path.Length
 			&& IsSeparator( path[0] )
@@ -688,7 +688,7 @@ public static class PathLexicalNormalizer {
 		)
 	;
 
-	private readonly record struct WindowsRoot(
+	internal readonly record struct WindowsRoot(
 		string RootPath,
 		string VolumeName,
 		int ContentStart,

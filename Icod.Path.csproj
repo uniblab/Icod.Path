@@ -12,7 +12,7 @@
 		<AssemblyName>Icod.Path</AssemblyName>
 		<RootNamespace>Icod.Path</RootNamespace>
 		<Configurations>Debug;Release;Staging</Configurations>
-		<Version>1.0.1</Version>
+		<Version>1.1.0</Version>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(PlatformTarget)' == '' ">
 		<PlatformTarget>AnyCPU</PlatformTarget>
@@ -47,8 +47,8 @@
 		<WarningsNotAsErrors>CS1591</WarningsNotAsErrors>
 	</PropertyGroup>
 	<PropertyGroup>
-		<PackageVersion>1.0.1</PackageVersion>
-		<PackageReleaseNotes>Canonical-path foundation release</PackageReleaseNotes>
+		<PackageVersion>1.1.0</PackageVersion>
+		<PackageReleaseNotes>Add platform-explicit lexical pathname decomposition for command-neutral consumers.</PackageReleaseNotes>
 		<Authors>Timothy J. Bruce</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
@@ -58,7 +58,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<Deterministic>true</Deterministic>
-		<PackageTags>path;filesystem;canonicalization;path-resolution;realpath;normalization;symlink;symbolic-link;reparse-point;cross-platform;posix;hard-link;junction-point;canonical-path</PackageTags>
+		<PackageTags>path;filesystem;canonicalization;path-resolution;realpath;normalization;symlink;symbolic-link;reparse-point;cross-platform;posix;hard-link;junction-point;canonical-path;pathname;path-parsing</PackageTags>
 		<RepositoryUrl>https://github.com/uniblab/Icod.Path</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageIcon>icon.png</PackageIcon>
