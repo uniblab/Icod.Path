@@ -1,5 +1,8 @@
 # Icod.Path
 
+[![PR Staging build](https://github.com/uniblab/Icod.Path/actions/workflows/pull-request.yaml/badge.svg)](https://github.com/uniblab/Icod.Path/actions/workflows/pull-request.yaml)
+[![Main Release validation](https://github.com/uniblab/Icod.Path/actions/workflows/main.yaml/badge.svg?branch=main)](https://github.com/uniblab/Icod.Path/actions/workflows/main.yaml)
+
 `Icod.Path` is a standalone .NET library for deterministic pathname decomposition, normalization, physical canonicalization, and no-follow pathname-indirection inspection across POSIX and Windows path models.
 
 The library is command-neutral. It can be consumed by utility suites, applications, services, build tools, or other libraries that need canonical-path behavior without depending on a command-line implementation.
@@ -77,10 +80,27 @@ System-backed physical observation uses the current host filesystem. On Windows,
 
 `Icod.Path` targets .NET 7.0, 8.0, 9.0, and 10.0 and uses C# 13.
 
+Local development uses the repository `Debug` build cycle:
+
 ```text
-dotnet build Icod.Path.sln
-dotnet test Icod.Path.sln
+build.cmd
 ```
+
+or on Unix-like hosts:
+
+```text
+./build.sh
+```
+
+The default local sequence is:
+
+```text
+clean -> restore -> build -> test -> pack -> validate
+```
+
+Pull requests elevate to `Staging`. Pushes to `main` run the authoritative six-runner `Release` validation gate. Package publication occurs only from an immutable `v<semver>` tag whose commit is contained in `main` and whose version matches `Icod.Path.csproj:PackageVersion`.
+
+See [`packaging/README.md`](packaging/README.md) for the build, package-verification, and publication contract.
 
 The repository contains the library project at the root and its test project under `tests/Path.Tests`.
 
