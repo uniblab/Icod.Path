@@ -1,0 +1,95 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSIONS: |
+    7.0.x
+    8.0.x
+    9.0.x
+    10.0.x
+  CONFIGURATION: Release
+  SOLUTION_PATH: Icod.Path.sln
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows x64
+            verify_packages: false
+          - os: windows-11-arm
+            name: Windows ARM64
+            verify_packages: false
+          - os: ubuntu-24.04
+            name: Linux x64
+            verify_packages: true
+          - os: ubuntu-24.04-arm
+            name: Linux ARM64
+            verify_packages: false
+          - os: macos-15-intel
+            name: macOS x64
+            verify_packages: false
+          - os: macos-15
+            name: macOS ARM64
+            verify_packages: false
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSIONS }}
+      - name: Restore
+        run: dotnet restore '${{ env.SOLUTION_PATH }}'
+      - name: Build
+        run: >-
+          dotnet build '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-restore
+          -p:ContinuousIntegrationBuild=true
+      - name: Test
+        run: >-
+          dotnet test '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-build
+          --no-restore
+          --logger trx
+      - name: Pack Release package
+        if: matrix.verify_packages
+        run: >-
+          dotnet pack '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-build
+          --no-restore
+          -o artifacts
+          -p:ContinuousIntegrationBuild=true
+      - name: Verify exact Release package artifacts
+        if: matrix.verify_packages
+        shell: pwsh
+        run: >-
+          ./packaging/VerifyPackageArtifact.ps1
+          -ArtifactDirectory artifacts
+          -Configuration '${{ env.CONFIGURATION }}'
+      - name: Upload validated Release package artifacts
+        if: matrix.verify_packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: icod-path-main-packages
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          if-no-files-found: error
+          retention-days: 7

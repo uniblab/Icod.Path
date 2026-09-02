@@ -1,0 +1,238 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSIONS: |
+    7.0.x
+    8.0.x
+    9.0.x
+    10.0.x
+  CONFIGURATION: Release
+  SOLUTION_PATH: Icod.Path.sln
+  PROJECT_PATH: Icod.Path.csproj
+  RELEASE_DIRECTORY: artifacts/release
+  SELECTED_PACKAGE_DIRECTORY: artifacts/release-packages
+  PACKAGE_ARTIFACT: icod-path-release-packages
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSIONS }}
+      - name: Require tagged commit in main
+        shell: pwsh
+        run: |
+          git fetch origin main --no-tags
+          git merge-base --is-ancestor $env:GITHUB_SHA origin/main
+          if (0 -ne $LASTEXITCODE) {
+              throw "Release tag '$env:GITHUB_REF_NAME' does not point to a commit contained in main."
+          }
+      - id: version
+        name: Validate release tag and package version
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          if ($tag -notmatch '^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z][0-9A-Za-z.-]*)?)$') {
+              throw "Release tag '$tag' is not a supported v<semver> tag."
+          }
+
+          $version = $Matches.version
+          $packageVersion = (dotnet msbuild '${{ env.PROJECT_PATH }}' -nologo -getProperty:PackageVersion).Trim()
+          if (0 -ne $LASTEXITCODE) {
+              throw 'Unable to read PackageVersion from Icod.Path.csproj.'
+          }
+          if ($packageVersion -ne $version) {
+              throw "Tag version '$version' does not match PackageVersion '$packageVersion'."
+          }
+
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "prerelease=$($version.Contains('-').ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+  package:
+    needs: metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSIONS }}
+      - name: Restore
+        run: dotnet restore '${{ env.SOLUTION_PATH }}'
+      - name: Build Release package inputs
+        run: >-
+          dotnet build '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-restore
+          -p:ContinuousIntegrationBuild=true
+      - name: Pack release candidate
+        run: >-
+          dotnet pack '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-build
+          --no-restore
+          -o ${{ env.RELEASE_DIRECTORY }}
+          -p:ContinuousIntegrationBuild=true
+      - name: Select exact tagged package artifacts
+        shell: pwsh
+        run: >-
+          ./packaging/SelectReleasePackages.ps1
+          -SourceDirectory '${{ env.RELEASE_DIRECTORY }}'
+          -DestinationDirectory '${{ env.SELECTED_PACKAGE_DIRECTORY }}'
+          -ExpectedVersion '${{ needs.metadata.outputs.version }}'
+      - name: Verify exact release package artifacts
+        shell: pwsh
+        run: >-
+          ./packaging/VerifyPackageArtifact.ps1
+          -ArtifactDirectory '${{ env.SELECTED_PACKAGE_DIRECTORY }}'
+          -Configuration '${{ env.CONFIGURATION }}'
+          -ExpectedVersion '${{ needs.metadata.outputs.version }}'
+      - name: Upload exact release package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_ARTIFACT }}
+          path: |
+            ${{ env.SELECTED_PACKAGE_DIRECTORY }}/*.nupkg
+            ${{ env.SELECTED_PACKAGE_DIRECTORY }}/*.snupkg
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-nuget:
+    needs: [metadata, package]
+    runs-on: ubuntu-latest
+    environment: Release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_ARTIFACT }}
+          path: artifacts/package
+      - name: Exchange GitHub OIDC token for NuGet credential
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+      - name: Publish to NuGet.org
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          $package = Get-Item -LiteralPath "artifacts/package/Icod.Path.${{ needs.metadata.outputs.version }}.nupkg"
+          dotnet nuget push $package.FullName `
+              --api-key $env:NUGET_API_KEY `
+              --source 'https://api.nuget.org/v3/index.json' `
+              --skip-duplicate
+          if (0 -ne $LASTEXITCODE) {
+              throw "NuGet.org publication failed with status $LASTEXITCODE."
+          }
+
+  publish-github-packages:
+    needs: [metadata, package]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_ARTIFACT }}
+          path: artifacts/package
+      - name: Publish to GitHub Packages
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_OWNER: ${{ github.repository_owner }}
+        run: |
+          $source = "https://nuget.pkg.github.com/$env:GITHUB_OWNER/index.json"
+          $package = Get-Item -LiteralPath "artifacts/package/Icod.Path.${{ needs.metadata.outputs.version }}.nupkg"
+          dotnet nuget push $package.FullName `
+              --source $source `
+              --api-key $env:GITHUB_TOKEN `
+              --skip-duplicate
+          if (0 -ne $LASTEXITCODE) {
+              throw "GitHub Packages publication failed with status $LASTEXITCODE."
+          }
+
+  github-release:
+    needs: [metadata, package, publish-nuget, publish-github-packages]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_ARTIFACT }}
+          path: artifacts/release-assets
+      - name: Create checksums
+        shell: pwsh
+        run: |
+          $assetDirectory = 'artifacts/release-assets'
+          $files = @(Get-ChildItem -LiteralPath $assetDirectory -File | Sort-Object Name)
+          if (2 -ne $files.Count) {
+              throw "Expected exactly the Icod.Path nupkg and snupkg before checksumming; found $($files.Count)."
+          }
+          $lines = foreach ($file in $files) {
+              $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+              "$hash  $($file.Name)"
+          }
+          [System.IO.File]::WriteAllLines(
+              (Join-Path $assetDirectory 'SHA256SUMS.txt'),
+              $lines,
+              [System.Text.UTF8Encoding]::new($false)
+          )
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $version = '${{ needs.metadata.outputs.version }}'
+          $assets = @(
+              Get-ChildItem -LiteralPath 'artifacts/release-assets' -File |
+                  Sort-Object Name |
+                  ForEach-Object { $_.FullName }
+          )
+
+          $arguments = @(
+              'release', 'create', $tag,
+              '--verify-tag',
+              '--title', "Icod.Path $version",
+              '--generate-notes'
+          )
+          if ('true' -eq '${{ needs.metadata.outputs.prerelease }}') {
+              $arguments += '--prerelease'
+              $arguments += '--latest=false'
+          }
+          $arguments += $assets
+
+          & gh @arguments
+          if (0 -ne $LASTEXITCODE) {
+              throw "GitHub Release creation failed with status $LASTEXITCODE."
+          }

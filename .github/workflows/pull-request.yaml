@@ -1,0 +1,84 @@
+name: pull-request
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_VERSIONS: |
+    7.0.x
+    8.0.x
+    9.0.x
+    10.0.x
+  CONFIGURATION: Staging
+  SOLUTION_PATH: Icod.Path.sln
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows
+            verify_packages: false
+          - os: ubuntu-latest
+            name: Linux
+            verify_packages: true
+          - os: macos-latest
+            name: macOS
+            verify_packages: false
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSIONS }}
+      - name: Restore
+        run: dotnet restore '${{ env.SOLUTION_PATH }}'
+      - name: Build
+        run: >-
+          dotnet build '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-restore
+          -p:ContinuousIntegrationBuild=true
+      - name: Test
+        run: >-
+          dotnet test '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-build
+          --no-restore
+          --logger trx
+      - name: Pack Staging package
+        if: matrix.verify_packages
+        run: >-
+          dotnet pack '${{ env.SOLUTION_PATH }}'
+          -c ${{ env.CONFIGURATION }}
+          --no-build
+          --no-restore
+          -o artifacts
+          -p:ContinuousIntegrationBuild=true
+      - name: Verify exact Staging package artifacts
+        if: matrix.verify_packages
+        shell: pwsh
+        run: >-
+          ./packaging/VerifyPackageArtifact.ps1
+          -ArtifactDirectory artifacts
+          -Configuration '${{ env.CONFIGURATION }}'
+      - name: Upload validated Staging package artifacts
+        if: matrix.verify_packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: icod-path-pr-packages
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          if-no-files-found: error
+          retention-days: 7
